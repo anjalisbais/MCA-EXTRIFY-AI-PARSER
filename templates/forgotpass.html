@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Forgot Password</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: linear-gradient(to bottom right, #fce4ec, #ffffff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container {
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      width: 360px;
+    }
+    .icon-header {
+      background: linear-gradient(to right, #c62828, #ef5350);
+      padding: 30px 0;
+      text-align: center;
+      border-bottom-left-radius: 50% 20%;
+      border-bottom-right-radius: 50% 20%;
+    }
+    .icon-header i {
+      color: white;
+      font-size: 40px;
+    }
+    .form-container {
+      padding: 30px;
+      text-align: center;
+    }
+    .form-container h2 {
+      color: #c62828;
+      margin-bottom: 20px;
+    }
+    input {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0;
+        border: 1px solid #c62828;
+        border-radius: 6px;
+        outline: none;
+        transition: 0.3s;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+      
+    input.input-error {
+        border: 2px solid orange;
+        background-color: #fff8f0;
+    }
+      
+    .password-wrapper {
+        position: relative;
+        margin: 10px 0;
+    }
+      
+    .password-wrapper input {
+        padding-right: 40px; /* Only add extra padding for icon space */
+    }
+      
+    .toggle-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 16px;
+      color: #c62828;
+    }
+    button {
+      background: #c62828;
+      color: white;
+      padding: 12px;
+      border: none;
+      width: 100%;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #a01818;
+    }
+    
+    a {
+      display: block;
+      margin-top: 10px;
+      color: #c62828;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon-header">
+      <i class="fas fa-unlock-alt"></i>
+    </div>
+    <div class="form-container">
+      <h2>Reset Password</h2>
+      <form id="forgotPasswordForm">
+        <input type="email" id="forgotEmail" placeholder="Enter Your Email" required>
+        <div class="password-wrapper">
+          <input type="password" id="newPassword" placeholder="New Password" required>
+          <span onclick="toggleNewPassword()" class="toggle-icon"><i class="fa-solid fa-eye"></i></span>
+        </div>
+        <div style="position: relative;">
+          <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+        </div>
+        <button type="submit">Reset Password</button>
+      </form>
+      <a href="{{ url_for('login') }}">Remembered your password? Login</a>
+    </div>
+  </div>
+
+  <script>
+    const emailInput = document.getElementById("forgotEmail");
+    const newPassword = document.getElementById("newPassword");
+    const confirmPassword = document.getElementById("confirmPassword");
+
+    function validateEmail(email) {
+      const re = /^[^@]+@[^@]+\.[^@]+$/;
+      return re.test(email);
+    }
+
+    function handleValidation() {
+      emailInput.classList.toggle("input-error", !validateEmail(emailInput.value));
+      confirmPassword.classList.toggle("input-error", newPassword.value !== confirmPassword.value);
+    }
+
+    emailInput.addEventListener("input", handleValidation);
+    newPassword.addEventListener("input", handleValidation);
+    confirmPassword.addEventListener("input", handleValidation);
+
+    function toggleNewPassword() {
+      const newPassField = document.getElementById("newPassword");
+      const toggleIcon = document.querySelector(".toggle-icon i");
+      if (newPassField.type === "password") {
+        newPassField.type = "text";
+        toggleIcon.classList.remove("fa-eye");
+        toggleIcon.classList.add("fa-eye-slash");
+      } else {
+        newPassField.type = "password";
+        toggleIcon.classList.remove("fa-eye-slash");
+        toggleIcon.classList.add("fa-eye");
+      }
+    }
+
+    document.getElementById("forgotPasswordForm").addEventListener("submit", async function (event) {
+      event.preventDefault();
+      handleValidation();
+
+      const email = emailInput.value;
+      const newPass = newPassword.value;
+      const confirmPass = confirmPassword.value;
+
+      if (!validateEmail(email)) {
+        alert("Please enter a valid email.");
+        return;
+      }
+
+      if (newPass !== confirmPass) {
+        alert("Passwords do not match.");
+        return;
+      }
+
+      const response = await fetch("/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, new_password: newPass })
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        alert("Password reset successful!");
+        window.location.href = "{{ url_for('login') }}";
+      } else {
+        alert(result.message);
+      }
+    });
+  </script>
+</body>
+</html>

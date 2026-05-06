@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: linear-gradient(to bottom right, #fce4ec, #ffffff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      width: 360px;
+    }
+
+    .icon-header {
+      background: linear-gradient(to right, #d32f2f, #f06292);
+      padding: 30px 0;
+      text-align: center;
+      border-bottom-left-radius: 50% 20%;
+      border-bottom-right-radius: 50% 20%;
+    }
+
+    .icon-header i {
+      color: white;
+      font-size: 40px;
+    }
+
+    .form-container {
+      padding: 30px;
+      text-align: center;
+    }
+
+    .form-container h2 {
+      color: #d32f2f;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #d32f2f;
+      border-radius: 6px;
+      outline: none;
+      transition: border 0.3s;
+    }
+
+    input.error {
+      border: 2px solid red;
+    }
+
+    small {
+      display: block;
+      font-size: 13px;
+      color: orange;
+      text-align: left;
+    }
+
+    button {
+      background: #d32f2f;
+      color: white;
+      padding: 12px;
+      border: none;
+      width: 100%;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #b71c1c;
+    }
+
+    a {
+      display: block;
+      margin-top: 10px;
+      color: #d32f2f;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .password-wrapper span {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="icon-header">
+    <i class="fas fa-user-plus"></i>
+  </div>
+  <div class="form-container">
+    <h2>Register</h2>
+    <form id="registerForm">
+      <input type="text" id="fullName" placeholder="Full Name" required />
+      <small id="nameError" style="display: none;">Name must contain only letters.</small>
+
+      <input type="email" id="registerEmail" placeholder="Email" required />
+      <small id="emailError" style="display: none;">Email must contain 'jspmntc'.</small>
+
+      <div class="password-wrapper">
+        <input type="password" id="registerPassword" placeholder="Password" required />
+        <span onclick="toggleRegisterPassword()">👁️</span>
+      </div>
+      <small id="passwordError" style="display: none;">Password must be at least 6 characters with 1 capital and 1 special character.</small>
+
+      <button type="submit">Register</button>
+    </form>
+    <a href="{{ url_for('login') }}">Already have an account? Login</a>
+  </div>
+</div>
+
+<script>
+  function toggleRegisterPassword() {
+    const passwordField = document.getElementById("registerPassword");
+    passwordField.type = passwordField.type === "password" ? "text" : "password";
+  }
+
+  function validateName(name) {
+    return /^[a-zA-Z ]+$/.test(name);
+  }
+
+  function validateEmail(email) {
+    return email.includes("jspmntc");
+  }
+
+  function validatePassword(password) {
+    const minLength = 6;
+    const hasCapital = /[A-Z]/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    return password.length >= minLength && hasCapital && hasSpecial;
+  }
+
+  function handleValidation() {
+    const name = document.getElementById("fullName");
+    const email = document.getElementById("registerEmail");
+    const password = document.getElementById("registerPassword");
+
+    const nameError = document.getElementById("nameError");
+    const emailError = document.getElementById("emailError");
+    const passwordError = document.getElementById("passwordError");
+
+    name.addEventListener("input", () => {
+      if (!validateName(name.value)) {
+        name.classList.add("error");
+        nameError.style.display = "block";
+      } else {
+        name.classList.remove("error");
+        nameError.style.display = "none";
+      }
+    });
+
+    email.addEventListener("input", () => {
+      if (!validateEmail(email.value)) {
+        email.classList.add("error");
+        emailError.style.display = "block";
+      } else {
+        email.classList.remove("error");
+        emailError.style.display = "none";
+      }
+    });
+
+    password.addEventListener("input", () => {
+      if (!validatePassword(password.value)) {
+        password.classList.add("error");
+        passwordError.style.display = "block";
+      } else {
+        password.classList.remove("error");
+        passwordError.style.display = "none";
+      }
+    });
+  }
+
+  document.getElementById("registerForm").addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const name = document.getElementById("fullName");
+    const email = document.getElementById("registerEmail");
+    const password = document.getElementById("registerPassword");
+
+    const nameError = document.getElementById("nameError");
+    const emailError = document.getElementById("emailError");
+    const passwordError = document.getElementById("passwordError");
+
+    let valid = true;
+
+    if (!validateName(name.value)) {
+      name.classList.add("error");
+      nameError.style.display = "block";
+      valid = false;
+    }
+
+    if (!validateEmail(email.value)) {
+      email.classList.add("error");
+      emailError.style.display = "block";
+      valid = false;
+    }
+
+    if (!validatePassword(password.value)) {
+      password.classList.add("error");
+      passwordError.style.display = "block";
+      valid = false;
+    }
+
+    if (!valid) {
+      alert("Please correct the highlighted fields.");
+      return;
+    }
+
+    try {
+      const response = await fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: name.value,
+          email: email.value,
+          password: password.value
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert("Registration Successful!");
+        document.getElementById("registerForm").reset();
+        window.location.href = "{{ url_for('login') }}";
+      } else {
+        alert("Registration failed: " + result.message);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Something went wrong. Please try again.");
+    }
+  });
+
+  // Trigger real-time validation on load
+  handleValidation();
+</script>
+</body>
+</html>

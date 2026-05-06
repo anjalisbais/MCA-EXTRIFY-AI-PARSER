@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      height: 100vh;
+      background: linear-gradient(to bottom right, #fce4ec, #ffffff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container {
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      width: 360px;
+    }
+    .icon-header {
+      background: linear-gradient(to right, #a94442, #d9534f);
+      padding: 30px 0;
+      text-align: center;
+      border-bottom-left-radius: 50% 20%;
+      border-bottom-right-radius: 50% 20%;
+    }
+    .icon-header i {
+      color: white;
+      font-size: 40px;
+    }
+    .form-container {
+      padding: 30px;
+      text-align: center;
+    }
+    .form-container h2 {
+      color: #a94442;
+      margin-bottom: 20px;
+    }
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #a94442;
+      border-radius: 6px;
+      outline: none;
+      transition: border-color 0.2s, background-color 0.2s;
+      box-sizing: border-box;
+}
+
+    input.input-error {
+      border: 2px solid orange;
+      background-color: #fff8f0;
+    }
+    .password-wrapper {
+      position: relative;
+      width: 100%;
+    }
+    
+    .password-wrapper input {
+      width: 100%;
+      padding-right: 40px; /* space for the toggle icon */
+    }
+    .toggle-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 16px;
+      color: #c62828;
+    }
+    
+    .password-wrapper span {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 16px;
+      color: #555;
+    }
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      justify-content: start;
+      margin: 10px 0;
+      gap: 8px;
+      font-size: 14px;
+      color: #333;
+    }
+    .checkbox-container input[type="checkbox"] {
+      margin: 0;
+      transform: scale(1.1);
+    }
+    button {
+      background: #a94442;
+      color: white;
+      padding: 12px;
+      border: none;
+      width: 100%;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #922d2d;
+    }
+    a {
+      display: block;
+      margin-top: 10px;
+      color: #a94442;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+      
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon-header">
+      <i class="fas fa-graduation-cap"></i>
+    </div>
+    <div class="form-container">
+      <h2>Login</h2>
+      <form id="loginForm" action="{{ url_for('login') }}" method="POST">
+        <input type="email" id="loginEmail" name="email" placeholder="Enter Email" required />
+        <div class="password-wrapper">
+          <input type="password" id="loginPassword" name="password" placeholder="Enter Password" required />
+          <span onclick="togglePassword()" class="toggle-icon"><i class="fa-solid fa-eye"></i></span>
+        </div>
+        <div class="checkbox-container">
+          <input type="checkbox" id="rememberMe" name="remember">
+          <label for="rememberMe">Remember Me</label>
+        </div>
+        <button type="submit">Login</button>
+      </form>
+      <a href="{{ url_for('forgot_password') }}">Forgot Password?</a>
+      <a href="{{ url_for('register') }}">Don't have an account? Register</a>
+    </div>
+  </div>
+
+  <script>
+    function togglePassword() {
+      const passwordField = document.getElementById("loginPassword");
+      const toggleIcon = document.querySelector(".toggle-icon i");
+      if (passwordField.type === "password") {
+        passwordField.type = "text";
+        toggleIcon.classList.remove("fa-eye");
+        toggleIcon.classList.add("fa-eye-slash");
+      } else {
+        passwordField.type = "password";
+        toggleIcon.classList.remove("fa-eye-slash");
+        toggleIcon.classList.add("fa-eye");
+      }
+    }
+
+    // Real-time validation for email and password
+    const emailInput = document.getElementById("loginEmail");
+    const passwordInput = document.getElementById("loginPassword");
+
+    emailInput.addEventListener("input", () => {
+      const value = emailInput.value;
+      const emailRegex = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+      if (!emailRegex.test(value) || !value.includes("jspmntc")) {
+        emailInput.classList.add("input-error");
+        emailInput.setCustomValidity("Email must be valid and contain 'jspmntc'");
+      } else {
+        emailInput.classList.remove("input-error");
+        emailInput.setCustomValidity("");
+      }
+    });
+
+    passwordInput.addEventListener("input", () => {
+      if (passwordInput.value.length < 6) {
+        passwordInput.classList.add("input-error");
+        passwordInput.setCustomValidity("Password must be at least 6 characters");
+      } else {
+        passwordInput.classList.remove("input-error");
+        passwordInput.setCustomValidity("");
+      }
+    });
+
+    // Handle localStorage for Remember Me
+    document.getElementById("loginForm").addEventListener("submit", function(event) {
+      const rememberMeChecked = document.getElementById("rememberMe").checked;
+      const emailValue = document.getElementById("loginEmail").value;
+      if (rememberMeChecked) {
+        localStorage.setItem("rememberedEmail", emailValue);
+      } else {
+        localStorage.removeItem("rememberedEmail");
+      }
+    });
+
+    // Load remembered email on page load
+    window.onload = () => {
+      const remembered = localStorage.getItem("rememberedEmail");
+      if (remembered) {
+        document.getElementById("loginEmail").value = remembered;
+        document.getElementById("rememberMe").checked = true;
+      }
+    };
+
+    // Only show error alert if there's an actual error message
+    const loginError = "{{ error|default('') }}";
+    if (loginError.trim() !== "") {
+      alert(loginError);
+    }
+  </script>
+</body>
+</html>

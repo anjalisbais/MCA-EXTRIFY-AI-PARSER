@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCA Ledger Dashboard - JSPM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: #f8f8f8;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background-color: #A80000;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 18px;
+        }
+
+        .sidebar button {
+            background-color: white;
+            color: #A80000;
+            border: none;
+            padding: 12px;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 100%;
+            font-weight: bold;
+        }
+
+        .sidebar button:hover {
+            background-color: #FFD6D6;
+        }
+
+        .logout-btn {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            background-color: white;
+            color: #A80000;
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0px;
+        }
+
+        /* Header */
+        .header {
+            background-color: white;
+            padding: 15px 50px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            height: 100px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* Upload Container */
+        .upload-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            width: 450px;
+            text-align: center;
+            margin-top: 100px;
+            display: none;
+        }
+
+        .upload-box {
+            border: 2px dashed #A80000;
+            padding: 30px;
+            cursor: pointer;
+            background: #FFF5F5;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        #uploadBtn {
+            background-color: grey;
+            color: white;
+            border: none;
+            padding: 12px;
+            cursor: not-allowed;
+            border-radius: 5px;
+            margin-top: 15px;
+            width: 100%;
+            font-weight: bold;
+        }
+
+        #uploadBtn.enabled {
+            background-color: #A80000;
+            cursor: pointer;
+        }
+
+        #downloadLink {
+            display: none;
+            background-color: #A80000;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Dashboard</h2>
+        <button id="uploadSectionBtn">UPLOAD</button>
+        <button id="logoutBtn" class="logout-btn">LOGOUT</button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main">
+        <!-- Header -->
+        <div class="header">
+            <img src="static/images/jspm_logo.jpg" alt="JSPM Logo" class="logo">
+            <div class="header-text">
+              <h1>MCA Extrify</h1>
+              <p class="tagline">PDF → Excel Conversion</p>
+            </div>
+            <img src="static/images/jspm_logo.jpg" alt="JSPM Logo" class="logo">
+          </div>
+          
+
+        <!-- Upload Section -->
+        <div class="upload-container" id="uploadContainer">
+            <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+                Drag & Drop PDF or Click to Upload
+            </div>
+            <input type="file" id="fileInput" accept="application/pdf">
+            <p id="fileName">No file selected</p>
+            <button id="uploadBtn" disabled>Convert</button>
+            <p id="statusMessage"></p>
+            <a id="downloadLink" href="#">Download Processed File</a>
+        </div>
+    </div>
+
+    <script>
+        // Show upload container when clicking the "UPLOAD" button
+        document.getElementById("uploadSectionBtn").addEventListener("click", function() {
+            document.getElementById("uploadContainer").style.display = "block";
+        });
+    
+        // Handle file selection
+        document.getElementById("fileInput").addEventListener("change", function() {
+            const file = this.files[0];
+            const uploadBtn = document.getElementById("uploadBtn");
+            const fileNameDisplay = document.getElementById("fileName");
+    
+            if (file && file.type === "application/pdf") {
+                fileNameDisplay.textContent = `Selected File: ${file.name}`;
+                uploadBtn.disabled = false;
+                uploadBtn.classList.add('enabled');
+            } else {
+                fileNameDisplay.textContent = "Invalid file. Please upload a PDF.";
+                uploadBtn.disabled = true;
+                uploadBtn.classList.remove('enabled');
+            }
+        });
+    
+        // Handle file upload process
+        document.getElementById("uploadBtn").addEventListener("click", function() {
+            const fileInputElem = document.getElementById("fileInput");
+            const fileInput = fileInputElem.files[0];
+            if (!fileInput) return;
+    
+            const formData = new FormData();
+            formData.append("file", fileInput);
+    
+            this.textContent = "Processing...";
+            this.disabled = true;
+    
+            fetch("/upload", { method: "POST", body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById("statusMessage").textContent = "✅ File processed successfully!";
+                        const downloadLink = document.getElementById("downloadLink");
+                        downloadLink.href = `/download/${data.file_name}`;
+                        downloadLink.style.display = "inline-block";
+                    } else {
+                        document.getElementById("statusMessage").textContent = "❌ Error processing file.";
+                    }
+                })
+                .catch(error => {
+                    document.getElementById("statusMessage").textContent = "❌ Server error. Try again.";
+                })
+                .finally(() => {
+                    document.getElementById("uploadBtn").textContent = "Convert";
+                    document.getElementById("uploadBtn").disabled = false;
+                });
+        });
+    
+        // Reset after download click
+        document.getElementById("downloadLink").addEventListener("click", function() {
+            document.getElementById("fileInput").value = "";
+            document.getElementById("fileName").textContent = "No file selected";
+            document.getElementById("statusMessage").textContent = "";
+            this.style.display = "none";
+        });
+    
+        // Logout handler
+        document.getElementById("logoutBtn").addEventListener("click", function () {
+            window.location.href = "/logout";
+        });
+    </script>
+</body>
+</html>
