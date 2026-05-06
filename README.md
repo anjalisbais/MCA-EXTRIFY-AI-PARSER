@@ -1,9 +1,9 @@
-# MCA-EXTRIFY-AI-PARSER
+# MCA-EXTRIFY-PDF-TO-EXCEL-PARSER
 A full stack Python application for automated data extraction from unstructured academic PDFs To Excel using Flask ,SQL Lite and Regex.
 
-PDF to Excel AI Parser
+PDF to Excel Parser
 ​-Overview
-​A full-stack Python application designed to "X-ray" unstructured academic PDFs and transform them into structured SQL and Excel formats using Flask and Regex.
+​A full-stack Python application designed to parse unstructured academic PDFs and transform them into structured Excel formats using Flask and Regex.
 ​-Tech Stack
 ​Backend: Python (Flask)
 ​Parsing: pdfplumber & Regular Expressions (Regex)
